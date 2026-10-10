@@ -1,0 +1,101 @@
+{
+    "tool": "WebShield V5",
+    "url_requested": "https://mainlinebounce.com",
+    "url_final": "https://mainlinebounce.com/",
+    "http_status": 200,
+    "responses_examined": 1,
+    "coverage_score": 20,
+    "summary": {
+        "compliant_or_covered": 1,
+        "not_detected": 5,
+        "needs_review": 0
+    },
+    "headers": [
+        {
+            "name": "HSTS",
+            "header": "Strict-Transport-Security",
+            "weight": 20,
+            "value": "max-age=31536000",
+            "description": "Demande au navigateur de privilégier HTTPS.",
+            "recommendation": "Sur HTTPS, définir un max-age adapté après vérification des sous-domaines.",
+            "status": "CONFORME",
+            "details": "HSTS détecté avec max-age=31536000."
+        },
+        {
+            "name": "Content Security Policy (CSP)",
+            "header": "Content-Security-Policy",
+            "weight": 25,
+            "value": "",
+            "description": "Définit les sources autorisées pour le contenu.",
+            "recommendation": "Construire et tester une CSP adaptée aux ressources du site.",
+            "status": "NON_DETECTE",
+            "details": "En-tête non détecté dans la réponse finale."
+        },
+        {
+            "name": "Protection MIME",
+            "header": "X-Content-Type-Options",
+            "weight": 15,
+            "value": "",
+            "description": "Limite certaines interprétations MIME automatiques.",
+            "recommendation": "Définir X-Content-Type-Options: nosniff.",
+            "status": "NON_DETECTE",
+            "details": "En-tête non détecté dans la réponse finale."
+        },
+        {
+            "name": "Protection clickjacking",
+            "header": "X-Frame-Options",
+            "weight": 15,
+            "value": "",
+            "description": "Peut limiter l'intégration du site dans une iframe.",
+            "recommendation": "Configurer X-Frame-Options ou frame-ancestors dans une CSP appliquée.",
+            "status": "NON_DETECTE",
+            "details": "En-tête non détecté dans la réponse finale."
+        },
+        {
+            "name": "Referrer-Policy",
+            "header": "Referrer-Policy",
+            "weight": 10,
+            "value": "",
+            "description": "Contrôle les informations de référent transmises.",
+            "recommendation": "Choisir une politique adaptée, par exemple strict-origin-when-cross-origin.",
+            "status": "NON_DETECTE",
+            "details": "En-tête non détecté dans la réponse finale."
+        },
+        {
+            "name": "Permissions Policy",
+            "header": "Permissions-Policy",
+            "weight": 15,
+            "value": "",
+            "description": "Contrôle certaines fonctionnalités du navigateur.",
+            "recommendation": "Limiter les fonctionnalités selon les besoins du site.",
+            "status": "NON_DETECTE",
+            "details": "En-tête non détecté dans la réponse finale."
+        }
+    ],
+    "cookies": [
+        {
+            "name": "(aucun cookie détecté)",
+            "response_number": 0,
+            "url": "",
+            "secure": false,
+            "httponly": false,
+            "samesite": "N/A",
+            "status": "INFO",
+            "details": "Aucun en-tête Set-Cookie détecté dans les réponses examinées.",
+            "recommendation": "Cela ne prouve pas qu'aucun cookie n'est utilisé plus tard."
+        }
+    ],
+    "redirects": [
+        {
+            "step": 1,
+            "url": "https://mainlinebounce.com/",
+            "status_code": 200,
+            "https": true,
+            "hsts": true,
+            "csp": false,
+            "csp_report_only": false,
+            "x_content_type_options": false,
+            "x_frame_options": false
+        }
+    ]
+}
