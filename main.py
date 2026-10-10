@@ -1,5 +1,6 @@
 
 """Point d'entrée de WebShield V5."""
+import argparse
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
@@ -15,7 +16,7 @@ from scanner import (
 from report import generate_html_report, calculate_coverage
 
 
-def main():
+def main(url=None):
     print("=" * 54)
     print("                 WEBSHIELD V5")
     print("   Vérification défensive des en-têtes HTTP")
@@ -25,7 +26,10 @@ def main():
         "tu as l'autorisation d'effectuer des vérifications.\n"
     )
 
-    url = input("URL du site à analyser : ").strip()
+    if url is None:
+        url = input("URL du site à analyser : ").strip()
+    else:
+        url = url.strip()
 
     if not url.startswith(("https://", "http://")):
         print("Erreur : l'URL doit commencer par https:// ou http://.")
@@ -63,8 +67,12 @@ def main():
         labels = {
             "CONFORME": "Conforme",
             "COUVERT_PAR_CSP": "Couvert par CSP",
+            "CONFIGURATION_APPAREMMENT_SOLIDE": "Configuration solide",
             "NON_DETECTE": "Non détecté",
             "A_VERIFIER": "À vérifier",
+            "ABSENTE": "Absente",
+            "FAIBLE": "Faible",
+            "À_AMÉLIORER": "À améliorer",
         }
 
         print("\n--- EN-TÊTES DE SÉCURITÉ ---")
@@ -117,6 +125,7 @@ def main():
         passed = (
             counts.get("CONFORME", 0)
             + counts.get("COUVERT_PAR_CSP", 0)
+            + counts.get("CONFIGURATION_APPAREMMENT_SOLIDE", 0)
         )
 
         print("\n--- RÉSUMÉ ---")
@@ -157,8 +166,16 @@ def main():
                     "compliant_or_covered": passed,
                     "not_detected": counts.get("NON_DETECTE", 0),
                     "needs_review": counts.get("A_VERIFIER", 0),
+                    "status_counts": counts,
                 },
-                "headers": header_results,
+                "headers": [
+                    {
+                        key: value
+                        for key, value in item.items()
+                        if key != "value"
+                    }
+                    for item in header_results
+                ],
                 "cookies": [
                     {
                         key: value
@@ -203,5 +220,22 @@ def main():
                 pass
             
 
+def cli(argv=None):
+    """Lance WebShield depuis la ligne de commande."""
+    parser = argparse.ArgumentParser(
+        description=(
+            "Analyse passive et défensive des protections HTTP d'une URL "
+            "autorisée."
+        ),
+    )
+    parser.add_argument(
+        "url",
+        nargs="?",
+        help="URL HTTP(S) autorisée à analyser.",
+    )
+    args = parser.parse_args(argv)
+    main(args.url)
+
+
 if __name__ == "__main__":
-    main()
+    cli()

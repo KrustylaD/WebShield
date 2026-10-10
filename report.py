@@ -164,6 +164,7 @@ def generate_html_report(
     passed = (
         counts.get("CONFORME", 0)
         + counts.get("COUVERT_PAR_CSP", 0)
+        + counts.get("CONFIGURATION_APPAREMMENT_SOLIDE", 0)
     )
     missing = counts.get("NON_DETECTE", 0)
     review = (

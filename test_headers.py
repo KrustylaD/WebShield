@@ -1,5 +1,6 @@
 
 import unittest
+from unittest.mock import MagicMock
 
 
 from scanner import (
@@ -7,6 +8,7 @@ from scanner import (
     check_header,
     parse_directives,
     scan_headers,
+    scan_cookies,
     _parse_max_age,
 )
 
@@ -30,16 +32,16 @@ class TestSecurityHeaders(unittest.TestCase):
         self.assertEqual(result["status"], "A_VERIFIER")
 
    
-def test_csp_with_directive_is_detected(self):
-    item = self.get_header("Content-Security-Policy")
-    result = check_header(
-        item,
-        {"Content-Security-Policy": "default-src 'self'"},
-        True,
-    )
+    def test_csp_with_directive_is_detected(self):
+        item = self.get_header("Content-Security-Policy")
+        result = check_header(
+            item,
+            {"Content-Security-Policy": "default-src 'self'"},
+            True,
+        )
 
-    self.assertEqual(result["status"], "À_AMÉLIORER")
-    self.assertIn("Score heuristique CSP", result["details"])
+        self.assertEqual(result["status"], "À_AMÉLIORER")
+        self.assertIn("Score heuristique CSP", result["details"])
 
 
     def test_permissions_policy_invalid_value(self):
@@ -222,6 +224,20 @@ def test_csp_with_directive_is_detected(self):
             True,
         )
         self.assertEqual(result["status"], "A_VERIFIER")
+
+    def test_cookie_invalid_samesite_is_not_conformant(self):
+        response = MagicMock()
+        response.raw = None
+        response.headers = {
+            "Set-Cookie": "session=fake; Secure; HttpOnly; SameSite=Invalid"
+        }
+        response.url = "https://example.test/account?token=secret"
+
+        result = scan_cookies([response])[0]
+
+        self.assertEqual(result["status"], "A_VERIFIER")
+        self.assertIn("invalide", result["details"])
+        self.assertNotIn("token=secret", result["url"])
 
 
 if __name__ == "__main__":

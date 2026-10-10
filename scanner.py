@@ -10,6 +10,7 @@ import requests
 
 TIMEOUT = 10
 MAX_REDIRECTS = 10
+MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 
 USER_AGENT = {
     "User-Agent": "WebShield/5.0 (educational security header checker)"
@@ -218,6 +219,41 @@ def fetch_responses(url):
                     stream=True,
                 )
                 responses.append(response)
+
+                content_length = response.headers.get("Content-Length")
+                if content_length is not None:
+                    try:
+                        declared_size = int(content_length)
+                    except ValueError as exc:
+                        raise ValueError(
+                            "Réponse HTTP avec Content-Length invalide."
+                        ) from exc
+
+                    if declared_size < 0:
+                        raise ValueError(
+                            "Réponse HTTP avec Content-Length négatif."
+                        )
+
+                    if declared_size > MAX_RESPONSE_BYTES:
+                        raise ValueError(
+                            "Réponse HTTP trop volumineuse "
+                            f"(limite : {MAX_RESPONSE_BYTES} octets)."
+                        )
+
+                bytes_read = 0
+                for chunk in response.iter_content(chunk_size=64 * 1024):
+                    if not chunk:
+                        continue
+                    if not isinstance(chunk, bytes):
+                        raise ValueError(
+                            "Réponse HTTP avec un contenu non binaire."
+                        )
+                    bytes_read += len(chunk)
+                    if bytes_read > MAX_RESPONSE_BYTES:
+                        raise ValueError(
+                            "Réponse HTTP trop volumineuse après lecture "
+                            f"(limite : {MAX_RESPONSE_BYTES} octets)."
+                        )
 
                 if response.status_code not in REDIRECT_CODES:
                     return response, responses
@@ -577,13 +613,20 @@ def scan_cookies(responses):
             )
 
             attributes = {}
+            duplicate_attributes = set()
 
             for part in parts[1:]:
                 if "=" in part:
                     key, value = part.split("=", 1)
-                    attributes[key.strip().lower()] = value.strip()
+                    normalized_key = key.strip().lower()
+                    if normalized_key in attributes:
+                        duplicate_attributes.add(normalized_key)
+                    attributes[normalized_key] = value.strip()
                 else:
-                    attributes[part.strip().lower()] = True
+                    normalized_key = part.strip().lower()
+                    if normalized_key in attributes:
+                        duplicate_attributes.add(normalized_key)
+                    attributes[normalized_key] = True
 
             secure = "secure" in attributes
             httponly = "httponly" in attributes
@@ -596,11 +639,15 @@ def scan_cookies(responses):
                 missing.append("HttpOnly")
             if not samesite:
                 missing.append("SameSite")
+            elif str(samesite).lower() not in {"strict", "lax", "none"}:
+                missing.append("SameSite (valeur invalide)")
+            elif "samesite" in duplicate_attributes:
+                missing.append("SameSite (dupliqué)")
 
             results.append({
                 "name": cookie_name or "(nom inconnu)",
                 "response_number": response_number,
-                "url": response.url,
+                "url": _redacted_response_url(response.url),
                 "secure": secure,
                 "httponly": httponly,
                 "samesite": str(samesite) if samesite else "Absent",
@@ -635,6 +682,12 @@ def scan_cookies(responses):
         })
 
     return results
+
+
+def _redacted_response_url(url):
+    """Retourne une URL de rapport sans query string ni fragment."""
+    parsed = urlsplit(str(url))
+    return parsed._replace(query="", fragment="").geturl()
 
 
 def scan_redirects(responses):

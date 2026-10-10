@@ -26,6 +26,9 @@ attributs des cookies et la chaîne de redirections.
 - Score pondéré de couverture des contrôles.
 - Génération d'un rapport HTML et d'un rapport JSON pour chaque scan.
 - Conservation des rapports précédents grâce à un nom de fichier horodaté.
+- Validation des destinations publiques avant chaque requête et redirection.
+- Limite de 10 redirections et limite réelle de 2 Mio sur les octets lus,
+  avec contrôle préalable de `Content-Length` lorsqu'il est présent.
 
 ## Prérequis
 
@@ -61,6 +64,18 @@ Saisis ensuite une URL complète, par exemple :
 
 ```text
 https://example.com
+```
+
+L'URL peut aussi être fournie directement :
+
+```powershell
+python main.py https://example.com
+```
+
+Pour afficher l'aide :
+
+```powershell
+python main.py --help
 ```
 
 Après l'analyse, les deux rapports sont enregistrés dans `reports/` avec le
@@ -105,6 +120,25 @@ un autre programme :
 Les valeurs sensibles des cookies (`value`, `cookie_value`, `raw_value` et
 `set_cookie`) sont exclues de l'export JSON.
 
+## Fonctionnalités expérimentales et non implémentées
+
+Le mode normal est passif : il n'exécute aucune charge utile et ne tente pas
+d'exploiter la cible.
+
+Les éléments suivants ne sont pas encore implémentés comme contrôles fiables :
+
+- vérification détaillée TLS/certificat au-delà de la validation TLS effectuée
+  par `requests` ;
+- détection active XSS ou SQL ;
+- laboratoire local volontairement vulnérable ;
+- exploration de liens, de répertoires, de ports ou de sous-domaines ;
+- classification universelle des vulnérabilités.
+
+Un code HTTP inhabituel, une erreur serveur ou un temps de réponse ne suffit
+pas à confirmer une vulnérabilité. Ces fonctionnalités devront être ajoutées
+dans un mode laboratoire explicitement séparé et avec des réponses de
+référence connues.
+
 ## Comprendre le score
 
 Le score est une mesure indicative de la couverture des six contrôles
@@ -139,7 +173,8 @@ l'échappement HTML, les rapports JSON et la fermeture des réponses HTTP.
 
 - `main.py` : interface console et orchestration d'un scan.
 - `scanner.py` : requêtes HTTP, validation des redirections, analyse des
-  en-têtes, cookies et redirections.
+  en-têtes, cookies et redirections, avec les garde-fous réseau du mode
+  normal.
 - `report.py` : calcul du score et génération du rapport HTML.
 - `test_headers.py` : tests des contrôles d'en-têtes.
 - `test_integration.py` : tests d'intégration sur un serveur local.
@@ -147,6 +182,20 @@ l'échappement HTML, les rapports JSON et la fermeture des réponses HTTP.
 - `test_webshield.py` : tests des redirections et du nettoyage des réponses.
 - `requirements.txt` : dépendances Python.
 - `reports/` : rapports générés localement après un scan.
+
+## Garde-fous du mode normal
+
+WebShield autorise uniquement les URL `http://` et `https://` sans
+identifiants intégrés. Les destinations locales, loopback, privées,
+link-local, multicast et autres adresses non globales sont refusées après
+résolution DNS. Chaque redirection est validée à nouveau.
+
+Le scanner utilise un délai explicite, ne suit pas automatiquement les liens
+de la page, ne lance pas de scan de ports et ne conserve pas les valeurs de
+cookies dans les rapports. La validation DNS effectuée avant une requête ne
+peut toutefois pas garantir l'absence de changement d'adresse ultérieur par
+le système ou le réseau ; cette limite est à prendre en compte avant tout
+usage sur une infrastructure sensible.
 
 ## Limites et sécurité
 

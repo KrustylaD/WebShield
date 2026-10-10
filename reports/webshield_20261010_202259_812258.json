@@ -1,75 +1,75 @@
 {
     "tool": "WebShield V5",
-    "url_requested": "https://mainlinebounce.com",
-    "url_final": "https://mainlinebounce.com/",
+    "url_requested": "https://whale-tracker.net/fr",
+    "url_final": "https://whale-tracker.net/fr",
     "http_status": 200,
     "responses_examined": 1,
-    "coverage_score": 20,
+    "coverage_score": 68,
     "summary": {
-        "compliant_or_covered": 1,
-        "not_detected": 5,
-        "needs_review": 0
+        "compliant_or_covered": 4,
+        "not_detected": 0,
+        "needs_review": 1,
+        "status_counts": {
+            "CONFORME": 3,
+            "FAIBLE": 1,
+            "COUVERT_PAR_CSP": 1,
+            "A_VERIFIER": 1
+        }
     },
     "headers": [
         {
             "name": "HSTS",
             "header": "Strict-Transport-Security",
             "weight": 20,
-            "value": "max-age=31536000",
             "description": "Demande au navigateur de privilégier HTTPS.",
             "recommendation": "Sur HTTPS, définir un max-age adapté après vérification des sous-domaines.",
             "status": "CONFORME",
-            "details": "HSTS détecté avec max-age=31536000."
+            "details": "HSTS détecté avec max-age=63072000."
         },
         {
             "name": "Content Security Policy (CSP)",
             "header": "Content-Security-Policy",
             "weight": 25,
-            "value": "",
             "description": "Définit les sources autorisées pour le contenu.",
             "recommendation": "Construire et tester une CSP adaptée aux ressources du site.",
-            "status": "NON_DETECTE",
-            "details": "En-tête non détecté dans la réponse finale."
+            "status": "FAIBLE",
+            "details": "Score heuristique CSP : 50/100. script-src autorise unsafe-inline. style-src autorise unsafe-inline."
         },
         {
             "name": "Protection MIME",
             "header": "X-Content-Type-Options",
             "weight": 15,
-            "value": "",
             "description": "Limite certaines interprétations MIME automatiques.",
             "recommendation": "Définir X-Content-Type-Options: nosniff.",
-            "status": "NON_DETECTE",
-            "details": "En-tête non détecté dans la réponse finale."
+            "status": "CONFORME",
+            "details": "Valeur nosniff détectée."
         },
         {
             "name": "Protection clickjacking",
             "header": "X-Frame-Options",
             "weight": 15,
-            "value": "",
             "description": "Peut limiter l'intégration du site dans une iframe.",
             "recommendation": "Configurer X-Frame-Options ou frame-ancestors dans une CSP appliquée.",
-            "status": "NON_DETECTE",
-            "details": "En-tête non détecté dans la réponse finale."
+            "status": "COUVERT_PAR_CSP",
+            "details": "La CSP appliquée contient frame-ancestors."
         },
         {
             "name": "Referrer-Policy",
             "header": "Referrer-Policy",
             "weight": 10,
-            "value": "",
             "description": "Contrôle les informations de référent transmises.",
             "recommendation": "Choisir une politique adaptée, par exemple strict-origin-when-cross-origin.",
-            "status": "NON_DETECTE",
-            "details": "En-tête non détecté dans la réponse finale."
+            "status": "CONFORME",
+            "details": "Valeur Referrer-Policy reconnue."
         },
         {
             "name": "Permissions Policy",
             "header": "Permissions-Policy",
             "weight": 15,
-            "value": "",
             "description": "Contrôle certaines fonctionnalités du navigateur.",
             "recommendation": "Limiter les fonctionnalités selon les besoins du site.",
-            "status": "NON_DETECTE",
-            "details": "En-tête non détecté dans la réponse finale."
+            "status": "A_VERIFIER",
+            "details": "En-tête présent ; syntaxe et directives à vérifier plus précisément."
         }
     ],
     "cookies": [
@@ -88,14 +88,14 @@
     "redirects": [
         {
             "step": 1,
-            "url": "https://mainlinebounce.com/",
+            "url": "https://whale-tracker.net/fr",
             "status_code": 200,
             "https": true,
             "hsts": true,
-            "csp": false,
+            "csp": true,
             "csp_report_only": false,
-            "x_content_type_options": false,
-            "x_frame_options": false
+            "x_content_type_options": true,
+            "x_frame_options": true
         }
     ]
 }

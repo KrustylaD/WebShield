@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 
 import requests
+import scanner
 from scanner import fetch_responses
 
 
@@ -100,6 +101,42 @@ class TestWebShieldRedirects(unittest.TestCase):
         self.assertIs(result, response)
         self.assertEqual(len(responses), 1)
         self.assertEqual(session.get.call_count, 1)
+
+    @patch("scanner.requests.Session")
+    @patch("scanner.validate_public_destination")
+    def test_refuses_declared_oversized_response(
+        self, mock_validate, mock_session_class
+    ):
+        session = mock_session_class.return_value.__enter__.return_value
+        response = self.make_response(200)
+        response.headers["Content-Length"] = str(
+            scanner.MAX_RESPONSE_BYTES + 1
+        )
+        session.get.return_value = response
+
+        with self.assertRaisesRegex(ValueError, "trop volumineuse"):
+            fetch_responses("https://public.example/")
+
+        response.close.assert_called_once()
+
+    @patch("scanner.requests.Session")
+    @patch("scanner.validate_public_destination")
+    def test_refuses_oversized_stream_without_content_length(
+        self, mock_validate, mock_session_class
+    ):
+        session = mock_session_class.return_value.__enter__.return_value
+        response = self.make_response(200)
+        response.headers.pop("Content-Length", None)
+        response.iter_content.return_value = [
+            b"x" * scanner.MAX_RESPONSE_BYTES,
+            b"overflow",
+        ]
+        session.get.return_value = response
+
+        with self.assertRaisesRegex(ValueError, "après lecture"):
+            fetch_responses("https://public.example/")
+
+        response.close.assert_called_once()
 
     @patch("scanner.requests.Session")
     @patch("scanner.validate_public_destination")
