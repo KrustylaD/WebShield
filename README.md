@@ -183,5 +183,4 @@ WebShield/
 
 ## Licence
 
-Projet pédagogique. Ajoute une licence explicite si tu souhaites définir les
-conditions de réutilisation.
+Projet pédagogique.
