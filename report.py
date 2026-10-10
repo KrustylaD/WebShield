@@ -3,6 +3,8 @@
 from html import escape
 from pathlib import Path
 
+REPORT_DIR = Path("reports")
+# Backward-compatible override used by existing callers and tests.
 REPORT_FILE = "webshield_report.html"
 
 
@@ -16,6 +18,10 @@ def calculate_coverage(header_results):
         "COUVERT_PAR_CSP",
         "A_VERIFIER",
         "NON_DETECTE",
+        "ABSENTE",
+        "FAIBLE",
+        "À_AMÉLIORER",
+        "CONFIGURATION_APPAREMMENT_SOLIDE",
     }
 
     total_weight = 0.0
@@ -37,9 +43,13 @@ def calculate_coverage(header_results):
 
         total_weight += weight
 
-        if status in ("CONFORME", "COUVERT_PAR_CSP"):
+        if status in (
+            "CONFORME",
+            "COUVERT_PAR_CSP",
+            "CONFIGURATION_APPAREMMENT_SOLIDE",
+        ):
             points += weight
-        elif status == "A_VERIFIER":
+        elif status in ("A_VERIFIER", "À_AMÉLIORER"):
             points += weight * 0.5
 
     if total_weight <= 0:
@@ -136,7 +146,9 @@ def generate_html_report(
     cookie_results,
     redirect_results,
     coverage_score,
+    output_path=None,
 ):
+    
     """Génère un rapport HTML autonome et lisible."""
 
     header_results = list(header_results or [])
@@ -555,6 +567,12 @@ footer {{ color: var(--muted); font-size: 12px; text-align: center; padding: 22p
 </body>
 </html>
 """
+    if output_path is None:
+        REPORT_DIR.mkdir(parents=True, exist_ok=True)
+        output_path = REPORT_DIR / REPORT_FILE
+    else:
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    Path(REPORT_FILE).write_text(html_doc, encoding="utf-8")
-    return REPORT_FILE
+    output_path.write_text(html_doc, encoding="utf-8")
+    return str(output_path)

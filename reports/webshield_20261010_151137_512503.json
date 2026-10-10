@@ -1,12 +1,12 @@
 {
     "tool": "WebShield V5",
-    "url_requested": "https://mainlinebounce.com",
-    "url_final": "https://mainlinebounce.com/",
-    "http_status": 200,
+    "url_requested": "https://krustylad.github.io/Portfolio-Lucas/",
+    "url_final": "https://krustylad.github.io/Portfolio-Lucas/",
+    "http_status": 404,
     "responses_examined": 1,
-    "coverage_score": 20,
+    "coverage_score": 0,
     "summary": {
-        "compliant_or_covered": 1,
+        "compliant_or_covered": 0,
         "not_detected": 5,
         "needs_review": 0
     },
@@ -15,21 +15,21 @@
             "name": "HSTS",
             "header": "Strict-Transport-Security",
             "weight": 20,
-            "value": "max-age=31536000",
+            "value": "",
             "description": "Demande au navigateur de privilégier HTTPS.",
             "recommendation": "Sur HTTPS, définir un max-age adapté après vérification des sous-domaines.",
-            "status": "CONFORME",
-            "details": "HSTS détecté avec max-age=31536000."
+            "status": "NON_DETECTE",
+            "details": "En-tête non détecté dans la réponse finale."
         },
         {
             "name": "Content Security Policy (CSP)",
             "header": "Content-Security-Policy",
             "weight": 25,
-            "value": "",
+            "value": "default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'self'",
             "description": "Définit les sources autorisées pour le contenu.",
             "recommendation": "Construire et tester une CSP adaptée aux ressources du site.",
-            "status": "NON_DETECTE",
-            "details": "En-tête non détecté dans la réponse finale."
+            "status": "FAIBLE",
+            "details": "Score heuristique CSP : 45/100. style-src autorise unsafe-inline. Directive object-src absente. Directive base-uri absente. Directive frame-ancestors absente."
         },
         {
             "name": "Protection MIME",
@@ -88,11 +88,11 @@
     "redirects": [
         {
             "step": 1,
-            "url": "https://mainlinebounce.com/",
-            "status_code": 200,
+            "url": "https://krustylad.github.io/Portfolio-Lucas/",
+            "status_code": 404,
             "https": true,
-            "hsts": true,
-            "csp": false,
+            "hsts": false,
+            "csp": true,
             "csp_report_only": false,
             "x_content_type_options": false,
             "x_frame_options": false

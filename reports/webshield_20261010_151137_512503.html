@@ -62,7 +62,7 @@ a { color: var(--accent); }
 }
 .score-area { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
 .gauge {
-  --score: 20;
+  --score: 0;
   width: 142px; height: 142px; border-radius: 50%;
   display: grid; place-items: center; flex-shrink: 0;
   background: conic-gradient(var(--accent) calc(var(--score) * 1%), #29364d 0);
@@ -189,9 +189,9 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 22px
     <div class="summary-grid">
       <div class="score-area">
         <div class="gauge" role="img"
-             aria-label="Couverture indicative : 20 sur 100">
+             aria-label="Couverture indicative : 0 sur 100">
           <div class="gauge-inner">
-            <div class="score-number">20/100</div>
+            <div class="score-number">0/100</div>
           </div>
         </div>
         <div>
@@ -203,15 +203,15 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 22px
       <div class="meta-list">
         <div class="meta-item">
           <span class="meta-label">URL demandée</span>
-          <div class="meta-value">https://mainlinebounce.com</div>
+          <div class="meta-value">https://krustylad.github.io/Portfolio-Lucas/</div>
         </div>
         <div class="meta-item">
           <span class="meta-label">URL finale</span>
-          <div class="meta-value">https://mainlinebounce.com/</div>
+          <div class="meta-value">https://krustylad.github.io/Portfolio-Lucas/</div>
         </div>
         <div class="meta-item">
           <span class="meta-label">Code HTTP final</span>
-          <div class="meta-value">200</div>
+          <div class="meta-value">404</div>
         </div>
       </div>
     </div>
@@ -219,7 +219,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 22px
     <div class="stats">
       
     <article class="stat-card good">
-      <div class="stat-number">1</div>
+      <div class="stat-number">0</div>
       <div class="stat-label">Conformes / couverts</div>
       <div class="stat-description">Contrôles validés par le scanner</div>
     </article>
@@ -242,7 +242,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 22px
     <article class="stat-card neutral">
       <div class="stat-number">6</div>
       <div class="stat-label">Contrôles analysés</div>
-      <div class="stat-description">0 autre(s) résultat(s)</div>
+      <div class="stat-description">1 autre(s) résultat(s)</div>
     </article>
     
     </div>
@@ -258,17 +258,31 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 22px
   <section class="panel">
     <div class="section-heading">
       <h2>Points à examiner</h2>
-      <span class="section-count">5 contrôle(s)</span>
+      <span class="section-count">6 contrôle(s)</span>
     </div>
     
             <article class="finding">
               <div class="finding-top">
-                <strong>Content Security Policy (CSP)</strong>
+                <strong>HSTS</strong>
                 <span class="badge issue">
                   Non détecté
                 </span>
               </div>
               <p>En-tête non détecté dans la réponse finale.</p>
+              <p class="recommendation">
+                <strong>À envisager :</strong>
+                Sur HTTPS, définir un max-age adapté après vérification des sous-domaines.
+              </p>
+            </article>
+            
+            <article class="finding">
+              <div class="finding-top">
+                <strong>Content Security Policy (CSP)</strong>
+                <span class="badge issue">
+                  Faible
+                </span>
+              </div>
+              <p>Score heuristique CSP : 45/100. style-src autorise unsafe-inline. Directive object-src absente. Directive base-uri absente. Directive frame-ancestors absente.</p>
               <p class="recommendation">
                 <strong>À envisager :</strong>
                 Construire et tester une CSP adaptée aux ressources du site.
@@ -343,8 +357,8 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 22px
         <thead><tr>
           <th>Contrôle</th><th>Résultat</th><th>Détails</th><th>Recommandation</th>
         </tr></thead>
-        <tbody><tr><td>HSTS</td><td><span class="badge good">Conforme</span></td><td>HSTS détecté avec max-age=31536000.</td><td>Sur HTTPS, définir un max-age adapté après vérification des sous-domaines.</td></tr>
-<tr><td>Content Security Policy (CSP)</td><td><span class="badge issue">Non détecté</span></td><td>En-tête non détecté dans la réponse finale.</td><td>Construire et tester une CSP adaptée aux ressources du site.</td></tr>
+        <tbody><tr><td>HSTS</td><td><span class="badge issue">Non détecté</span></td><td>En-tête non détecté dans la réponse finale.</td><td>Sur HTTPS, définir un max-age adapté après vérification des sous-domaines.</td></tr>
+<tr><td>Content Security Policy (CSP)</td><td><span class="badge issue">Faible</span></td><td>Score heuristique CSP : 45/100. style-src autorise unsafe-inline. Directive object-src absente. Directive base-uri absente. Directive frame-ancestors absente.</td><td>Construire et tester une CSP adaptée aux ressources du site.</td></tr>
 <tr><td>Protection MIME</td><td><span class="badge issue">Non détecté</span></td><td>En-tête non détecté dans la réponse finale.</td><td>Définir X-Content-Type-Options: nosniff.</td></tr>
 <tr><td>Protection clickjacking</td><td><span class="badge issue">Non détecté</span></td><td>En-tête non détecté dans la réponse finale.</td><td>Configurer X-Frame-Options ou frame-ancestors dans une CSP appliquée.</td></tr>
 <tr><td>Referrer-Policy</td><td><span class="badge issue">Non détecté</span></td><td>En-tête non détecté dans la réponse finale.</td><td>Choisir une politique adaptée, par exemple strict-origin-when-cross-origin.</td></tr>
@@ -385,7 +399,7 @@ footer { color: var(--muted); font-size: 12px; text-align: center; padding: 22px
           <th>HSTS</th><th>CSP</th><th>CSP Report-Only</th>
           <th>Protection MIME</th><th>Protection iframe</th>
         </tr></thead>
-        <tbody><tr><td>1</td><td>https://mainlinebounce.com/</td><td>200</td><td>Oui</td><td>Oui</td><td>Non</td><td>Non</td><td>Non</td><td>Non</td></tr></tbody>
+        <tbody><tr><td>1</td><td>https://krustylad.github.io/Portfolio-Lucas/</td><td>404</td><td>Oui</td><td>Non</td><td>Oui</td><td>Non</td><td>Non</td><td>Non</td></tr></tbody>
       </table>
     </div>
     <p class="disclaimer" style="margin-top:14px">

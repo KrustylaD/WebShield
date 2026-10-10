@@ -1,5 +1,7 @@
 
 """Point d'entrée de WebShield V5."""
+from datetime import datetime
+from pathlib import Path
 from urllib.parse import urlparse
 import json
 import requests
@@ -45,6 +47,14 @@ def main():
         cookie_results = scan_cookies(responses)
         redirect_results = scan_redirects(responses)
         score = calculate_coverage(header_results)
+
+        # Créer un identifiant daté pour conserver chaque scan.
+        reports_dir = Path("reports")
+        reports_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+        report_base = reports_dir / f"webshield_{timestamp}"
+        html_path = report_base.with_suffix(".html")
+        json_path = report_base.with_suffix(".json")
 
         print(f"\nURL finale : {final_response.url}")
         print(f"Code HTTP final : {final_response.status_code}")
@@ -127,6 +137,7 @@ def main():
                 cookie_results,
                 redirect_results,
                 score,
+                output_path=html_path,
             )
             print(f"\nRapport HTML créé : {path}")
             print("Ouvre ce fichier dans ton navigateur.")
@@ -165,7 +176,7 @@ def main():
             }
 
             with open(
-                "webshield_report.json",
+                json_path,
                 "w",
                 encoding="utf-8",
             ) as file:
@@ -176,7 +187,7 @@ def main():
                     ensure_ascii=False,
                 )
 
-            print("Rapport JSON créé : webshield_report.json")
+            print(f"Rapport JSON créé : {json_path}")
 
         except (OSError, TypeError, ValueError) as error:
             print(f"Erreur lors de la création du rapport JSON : {error}")

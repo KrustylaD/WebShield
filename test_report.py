@@ -34,6 +34,20 @@ class TestCoverage(unittest.TestCase):
         results = [{"status": "A_VERIFIER", "weight": 100}]
         self.assertEqual(calculate_coverage(results), 50)
 
+    def test_csp_weak_status_is_supported(self):
+        results = [{"status": "FAIBLE", "weight": 100}]
+        self.assertEqual(calculate_coverage(results), 0)
+
+    def test_csp_quality_statuses_are_scored(self):
+        results = [
+            {
+                "status": "CONFIGURATION_APPAREMMENT_SOLIDE",
+                "weight": 50,
+            },
+            {"status": "À_AMÉLIORER", "weight": 50},
+        ]
+        self.assertEqual(calculate_coverage(results), 75)
+
     def test_weighted_score(self):
         results = [
             {"status": "CONFORME", "weight": 75},
