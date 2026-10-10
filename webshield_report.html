@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rapport WebShield</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 30px;
+        background: #101322;
+        color: #f3f4f6;
+    }
+    main { max-width: 1200px; margin: auto; }
+    h1, h2 { color: #a5b4fc; }
+    .card {
+        background: #1b2034;
+        border: 1px solid #343b58;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    .score { font-size: 42px; font-weight: bold; }
+    .risk { font-weight: bold; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 650px; }
+    th, td {
+        border-bottom: 1px solid #343b58;
+        text-align: left;
+        padding: 12px;
+        vertical-align: top;
+        overflow-wrap: anywhere;
+    }
+    th { color: #c7d2fe; }
+    .notice { color: #d1d5db; line-height: 1.6; }
+</style>
+</head>
+<body>
+<main>
+    <h1>WebShield — Rapport de sécurité</h1>
+
+    <div class="card">
+        <p><strong>URL analysée :</strong> https://mainlinebounce.com</p>
+        <p><strong>URL finale :</strong> https://mainlinebounce.com/</p>
+        <p><strong>Code HTTP final :</strong> 200</p>
+        <p class="score">20/100</p>
+        <p class="risk">Niveau de risque indicatif : IMPORTANT</p>
+        <p class="notice">
+            Ce score évalue uniquement les contrôles implémentés par WebShield.
+            Il ne représente pas une note globale de sécurité du site.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>1. En-têtes de sécurité</h2>
+        <div class="table-wrap">
+        <table>
+            <thead><tr>
+                <th>Contrôle</th><th>Résultat</th>
+                <th>Détail</th><th>Recommandation</th>
+            </tr></thead>
+            <tbody>
+        <tr>
+            <td>HSTS</td>
+            <td>Présent</td>
+            <td>HSTS actif avec max-age=31536000.</td>
+            <td>Configurer un max-age adapté sur le site HTTPS.</td>
+        </tr>
+        
+        <tr>
+            <td>CSP</td>
+            <td>Absent</td>
+            <td>En-tête absent.</td>
+            <td>Définir une Content Security Policy adaptée au site.</td>
+        </tr>
+        
+        <tr>
+            <td>Protection MIME</td>
+            <td>Absent</td>
+            <td>En-tête absent.</td>
+            <td>Définir X-Content-Type-Options: nosniff.</td>
+        </tr>
+        
+        <tr>
+            <td>Protection clickjacking</td>
+            <td>Absent</td>
+            <td>En-tête absent.</td>
+            <td>Configurer X-Frame-Options ou la directive CSP frame-ancestors.</td>
+        </tr>
+        
+        <tr>
+            <td>Politique de référent</td>
+            <td>Absent</td>
+            <td>En-tête absent.</td>
+            <td>Choisir une politique adaptée, par exemple strict-origin-when-cross-origin.</td>
+        </tr>
+        
+        <tr>
+            <td>Permissions Policy</td>
+            <td>Absent</td>
+            <td>En-tête absent.</td>
+            <td>Définir les permissions nécessaires au site.</td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>2. Cookies</h2>
+        <div class="table-wrap">
+        <table>
+            <thead><tr>
+                <th>Nom</th><th>Résultat</th><th>Secure</th>
+                <th>HttpOnly</th><th>SameSite</th><th>Détail</th>
+            </tr></thead>
+            <tbody>
+        <tr>
+            <td>(aucun cookie détecté)</td>
+            <td>Information</td>
+            <td>False</td>
+            <td>False</td>
+            <td>N/A</td>
+            <td>Aucun en-tête Set-Cookie détecté.</td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+        <p class="notice">
+            Les valeurs des cookies ne sont pas incluses dans ce rapport.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>3. Chaîne de redirections</h2>
+        <div class="table-wrap">
+        <table>
+            <thead><tr>
+                <th>Étape</th><th>URL</th><th>HTTP</th><th>HTTPS</th>
+                <th>HSTS</th><th>CSP</th><th>Protection MIME</th>
+                <th>Anti-clicjacking</th>
+            </tr></thead>
+            <tbody>
+        <tr>
+            <td>1</td>
+            <td>https://mainlinebounce.com/</td>
+            <td>200</td>
+            <td>Oui</td>
+            <td>Oui</td>
+            <td>Non</td>
+            <td>Non</td>
+            <td>Non</td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+        <p class="notice">
+            La comparaison montre quels en-têtes sont présents à chaque étape.
+            Leur absence sur une redirection intermédiaire n'est pas toujours
+            une vulnérabilité : la réponse finale et le comportement du site
+            doivent aussi être examinés.
+        </p>
+    </div>
+
+    <p class="notice">
+        Rapport généré localement par WebShield. Une analyse automatique
+        peut produire des faux positifs et ne remplace pas un audit complet.
+    </p>
+</main>
+</body>
+</html>
