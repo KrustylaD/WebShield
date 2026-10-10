@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>WebShield V5 — Rapport de sécurité</title>
+<style>
+:root {
+  --bg: #0b1020;
+  --panel: #131c30;
+  --panel-soft: #18243a;
+  --line: #293750;
+  --text: #edf3ff;
+  --muted: #9eafc9;
+  --accent: #76a9ff;
+  --good: #45d6a0;
+  --warning: #f4c66a;
+  --issue: #ff8585;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 10% 0%, #19284a 0, transparent 40%),
+    var(--bg);
+  color: var(--text);
+  font: 15px/1.6 system-ui, -apple-system, Segoe UI, sans-serif;
+}
+main { max-width: 1250px; margin: auto; padding: 34px 24px 50px; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { font-size: clamp(27px, 4vw, 42px); margin-bottom: 4px; letter-spacing: -1px; }
+h2 { font-size: 21px; margin-bottom: 18px; }
+h3 { font-size: 16px; }
+p { overflow-wrap: anywhere; }
+a { color: var(--accent); }
+.muted, .subtitle { color: var(--muted); }
+.subtitle { margin-bottom: 26px; }
+.topline {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.brand { display: flex; align-items: center; gap: 13px; }
+.brand-icon {
+  width: 46px; height: 46px; display: grid; place-items: center;
+  border-radius: 14px; background: #20375c; color: #a9caff;
+  font-weight: 900; font-size: 21px; border: 1px solid #36527e;
+}
+.pill {
+  border: 1px solid var(--line); color: var(--muted);
+  padding: 6px 11px; border-radius: 999px; font-size: 12px;
+}
+.panel {
+  background: linear-gradient(145deg, #151f34, #11192b);
+  border: 1px solid var(--line); border-radius: 18px;
+  padding: 24px; margin: 20px 0;
+  box-shadow: 0 10px 30px #00000012;
+}
+.summary-grid {
+  display: grid; grid-template-columns: minmax(250px, 0.9fr) minmax(0, 1.5fr);
+  gap: 24px; align-items: center;
+}
+.score-area { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.gauge {
+  --score: 20;
+  width: 142px; height: 142px; border-radius: 50%;
+  display: grid; place-items: center; flex-shrink: 0;
+  background: conic-gradient(var(--accent) calc(var(--score) * 1%), #29364d 0);
+  position: relative;
+}
+.gauge::before {
+  content: ""; position: absolute; inset: 10px;
+  border-radius: 50%; background: var(--panel);
+}
+.gauge-inner { position: relative; text-align: center; }
+.score-number { font-size: 32px; font-weight: 800; line-height: 1.2; }
+.score-denom { font-size: 12px; color: var(--muted); }
+.score-good { color: var(--good); }
+.score-medium { color: var(--warning); }
+.score-low { color: var(--issue); }
+.score-caption { font-weight: 700; margin-top: 7px; }
+.meta-list { display: grid; gap: 11px; }
+.meta-item {
+  padding: 12px 14px; background: #0d1526;
+  border: 1px solid var(--line); border-radius: 10px;
+}
+.meta-label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 3px; }
+.meta-value { font-weight: 600; overflow-wrap: anywhere; }
+.stats {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px; margin-top: 24px;
+}
+.stat-card {
+  border: 1px solid var(--line); background: #10192b;
+  padding: 16px; border-radius: 13px; min-width: 0;
+}
+.stat-number { font-size: 28px; font-weight: 800; }
+.stat-label { font-weight: 650; }
+.stat-description { color: var(--muted); font-size: 12px; margin-top: 4px; }
+.stat-card.good .stat-number { color: var(--good); }
+.stat-card.issue .stat-number { color: var(--issue); }
+.stat-card.warning .stat-number { color: var(--warning); }
+.stat-card.neutral .stat-number { color: var(--accent); }
+.notice {
+  background: #14283a; border: 1px solid #2e536d;
+  border-radius: 12px; padding: 15px;
+}
+.finding {
+  background: #10192b; border: 1px solid var(--line);
+  border-radius: 12px; padding: 16px; margin: 12px 0;
+}
+.finding-top {
+  display: flex; justify-content: space-between; gap: 12px;
+  align-items: center; flex-wrap: wrap; margin-bottom: 10px;
+}
+.finding p { margin-bottom: 8px; }
+.finding p:last-child { margin-bottom: 0; }
+.recommendation { color: #cbd7eb; }
+.badge {
+  display: inline-flex; padding: 4px 9px; border-radius: 999px;
+  font-size: 12px; line-height: 1.5; font-weight: 700;
+  border: 1px solid transparent; white-space: normal;
+}
+.badge.good { background: #153a32; color: #7be5bb; border-color: #28614e; }
+.badge.warning { background: #40341e; color: #ffdc8b; border-color: #68532b; }
+.badge.issue { background: #40252d; color: #ffaaaa; border-color: #6d3943; }
+.badge.neutral { background: #202d45; color: #c1d3f3; border-color: #34496b; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+table { width: 100%; min-width: 760px; border-collapse: collapse; }
+th, td {
+  text-align: left; vertical-align: top; padding: 13px 14px;
+  border-bottom: 1px solid var(--line); overflow-wrap: anywhere;
+}
+th { background: #1a2740; color: #c7d9f7; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+td { color: #dbe5f5; }
+tbody tr:hover { background: #ffffff06; }
+tbody tr:last-child td { border-bottom: 0; }
+.empty { text-align: center; color: var(--muted); padding: 25px; }
+.section-heading {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+}
+.section-count { color: var(--muted); font-size: 13px; }
+.disclaimer {
+  color: var(--muted); background: #0d1526;
+  padding: 14px; border-radius: 10px; font-size: 13px; margin-bottom: 0;
+}
+footer { color: var(--muted); font-size: 12px; text-align: center; padding: 22px 0; }
+@media (max-width: 800px) {
+  main { padding: 22px 14px 35px; }
+  .summary-grid { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .panel { padding: 17px; }
+}
+@media (max-width: 420px) {
+  .gauge { width: 118px; height: 118px; }
+  .score-number { font-size: 27px; }
+  .stat-number { font-size: 24px; }
+}
+@media print {
+  :root { --bg: white; --panel: white; --panel-soft: white; --line: #ddd; --text: #111; --muted: #555; }
+  body { background: white; color: #111; }
+  main { max-width: none; padding: 0; }
+  .panel, .stat-card, .meta-item, .finding { box-shadow: none; break-inside: avoid; background: white; }
+  th { background: #eee; color: #111; }
+  td { color: #111; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header class="topline">
+    <div class="brand">
+      <div class="brand-icon">W</div>
+      <div>
+        <h1>WebShield <span style="color:var(--accent)">V5</span></h1>
+        <div class="muted">Tableau de bord de vérification HTTP</div>
+      </div>
+    </div>
+    <span class="pill">Rapport généré localement</span>
+  </header>
+
+  <p class="subtitle">
+    Analyse défensive des en-têtes HTTP, des cookies et de la chaîne de redirections.
+  </p>
+
+  <section class="panel">
+    <h2>Vue d'ensemble</h2>
+    <div class="summary-grid">
+      <div class="score-area">
+        <div class="gauge" role="img"
+             aria-label="Couverture indicative : 20 sur 100">
+          <div class="gauge-inner">
+            <div class="score-number">20/100</div>
+          </div>
+        </div>
+        <div>
+          <div class="score-caption score-low">Couverture limitée</div>
+          <div class="muted">Couverture indicative des contrôles</div>
+        </div>
+      </div>
+
+      <div class="meta-list">
+        <div class="meta-item">
+          <span class="meta-label">URL demandée</span>
+          <div class="meta-value">https://mainlinebounce.com</div>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">URL finale</span>
+          <div class="meta-value">https://mainlinebounce.com/</div>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Code HTTP final</span>
+          <div class="meta-value">200</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      
+    <article class="stat-card good">
+      <div class="stat-number">1</div>
+      <div class="stat-label">Conformes / couverts</div>
+      <div class="stat-description">Contrôles validés par le scanner</div>
+    </article>
+    
+      
+    <article class="stat-card issue">
+      <div class="stat-number">5</div>
+      <div class="stat-label">Non détectés</div>
+      <div class="stat-description">Éléments absents ou non détectés</div>
+    </article>
+    
+      
+    <article class="stat-card warning">
+      <div class="stat-number">0</div>
+      <div class="stat-label">À examiner</div>
+      <div class="stat-description">Contrôles nécessitant une vérification</div>
+    </article>
+    
+      
+    <article class="stat-card neutral">
+      <div class="stat-number">6</div>
+      <div class="stat-label">Contrôles analysés</div>
+      <div class="stat-description">0 autre(s) résultat(s)</div>
+    </article>
+    
+    </div>
+
+    <p class="disclaimer" style="margin-top:20px">
+      <strong>Important :</strong> ce score pondéré décrit uniquement la couverture
+      des contrôles configurés. Il ne représente ni le risque global du site ni
+      une certification de sécurité. Une absence d'en-tête n'est pas toujours
+      une vulnérabilité ; les recommandations doivent être adaptées au site.
+    </p>
+  </section>
+
+  <section class="panel">
+    <div class="section-heading">
+      <h2>Points à examiner</h2>
+      <span class="section-count">5 contrôle(s)</span>
+    </div>
+    
+            <article class="finding">
+              <div class="finding-top">
+                <strong>Content Security Policy (CSP)</strong>
+                <span class="badge issue">
+                  Non détecté
+                </span>
+              </div>
+              <p>En-tête non détecté dans la réponse finale.</p>
+              <p class="recommendation">
+                <strong>À envisager :</strong>
+                Construire et tester une CSP adaptée aux ressources du site.
+              </p>
+            </article>
+            
+            <article class="finding">
+              <div class="finding-top">
+                <strong>Protection MIME</strong>
+                <span class="badge issue">
+                  Non détecté
+                </span>
+              </div>
+              <p>En-tête non détecté dans la réponse finale.</p>
+              <p class="recommendation">
+                <strong>À envisager :</strong>
+                Définir X-Content-Type-Options: nosniff.
+              </p>
+            </article>
+            
+            <article class="finding">
+              <div class="finding-top">
+                <strong>Protection clickjacking</strong>
+                <span class="badge issue">
+                  Non détecté
+                </span>
+              </div>
+              <p>En-tête non détecté dans la réponse finale.</p>
+              <p class="recommendation">
+                <strong>À envisager :</strong>
+                Configurer X-Frame-Options ou frame-ancestors dans une CSP appliquée.
+              </p>
+            </article>
+            
+            <article class="finding">
+              <div class="finding-top">
+                <strong>Referrer-Policy</strong>
+                <span class="badge issue">
+                  Non détecté
+                </span>
+              </div>
+              <p>En-tête non détecté dans la réponse finale.</p>
+              <p class="recommendation">
+                <strong>À envisager :</strong>
+                Choisir une politique adaptée, par exemple strict-origin-when-cross-origin.
+              </p>
+            </article>
+            
+            <article class="finding">
+              <div class="finding-top">
+                <strong>Permissions Policy</strong>
+                <span class="badge issue">
+                  Non détecté
+                </span>
+              </div>
+              <p>En-tête non détecté dans la réponse finale.</p>
+              <p class="recommendation">
+                <strong>À envisager :</strong>
+                Limiter les fonctionnalités selon les besoins du site.
+              </p>
+            </article>
+            
+  </section>
+
+  <section class="panel">
+    <div class="section-heading">
+      <h2>En-têtes de sécurité</h2>
+      <span class="section-count">6 résultat(s)</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Contrôle</th><th>Résultat</th><th>Détails</th><th>Recommandation</th>
+        </tr></thead>
+        <tbody><tr><td>HSTS</td><td><span class="badge good">Conforme</span></td><td>HSTS détecté avec max-age=31536000.</td><td>Sur HTTPS, définir un max-age adapté après vérification des sous-domaines.</td></tr>
+<tr><td>Content Security Policy (CSP)</td><td><span class="badge issue">Non détecté</span></td><td>En-tête non détecté dans la réponse finale.</td><td>Construire et tester une CSP adaptée aux ressources du site.</td></tr>
+<tr><td>Protection MIME</td><td><span class="badge issue">Non détecté</span></td><td>En-tête non détecté dans la réponse finale.</td><td>Définir X-Content-Type-Options: nosniff.</td></tr>
+<tr><td>Protection clickjacking</td><td><span class="badge issue">Non détecté</span></td><td>En-tête non détecté dans la réponse finale.</td><td>Configurer X-Frame-Options ou frame-ancestors dans une CSP appliquée.</td></tr>
+<tr><td>Referrer-Policy</td><td><span class="badge issue">Non détecté</span></td><td>En-tête non détecté dans la réponse finale.</td><td>Choisir une politique adaptée, par exemple strict-origin-when-cross-origin.</td></tr>
+<tr><td>Permissions Policy</td><td><span class="badge issue">Non détecté</span></td><td>En-tête non détecté dans la réponse finale.</td><td>Limiter les fonctionnalités selon les besoins du site.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="section-heading">
+      <h2>Analyse des cookies</h2>
+      <span class="section-count">1 cookie(s)</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Cookie</th><th>Résultat</th><th>Secure</th>
+          <th>HttpOnly</th><th>SameSite</th><th>Détails</th>
+        </tr></thead>
+        <tbody><tr><td>(aucun cookie détecté)</td><td><span class="badge neutral">Information</span></td><td>Non</td><td>Non</td><td>N/A</td><td>Aucun en-tête Set-Cookie détecté dans les réponses examinées.</td></tr></tbody>
+      </table>
+    </div>
+    <p class="disclaimer" style="margin-top:14px">
+      Les valeurs des cookies ne sont pas affichées. Les attributs attendus
+      dépendent notamment du rôle du cookie et de la façon dont le site l'utilise.
+    </p>
+  </section>
+
+  <section class="panel">
+    <div class="section-heading">
+      <h2>Chaîne de redirections</h2>
+      <span class="section-count">1 étape(s)</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Étape</th><th>URL</th><th>Code HTTP</th><th>HTTPS</th>
+          <th>HSTS</th><th>CSP</th><th>CSP Report-Only</th>
+          <th>Protection MIME</th><th>Protection iframe</th>
+        </tr></thead>
+        <tbody><tr><td>1</td><td>https://mainlinebounce.com/</td><td>200</td><td>Oui</td><td>Oui</td><td>Non</td><td>Non</td><td>Non</td><td>Non</td></tr></tbody>
+      </table>
+    </div>
+    <p class="disclaimer" style="margin-top:14px">
+      Les réponses intermédiaires apportent du contexte. L'absence d'un en-tête
+      sur une étape ne suffit pas, à elle seule, à démontrer un défaut exploitable.
+    </p>
+  </section>
+
+  <footer>
+    WebShield V5 · Rapport HTML autonome · À utiliser uniquement sur des sites
+    que tu possèdes ou pour lesquels tu as une autorisation.
+  </footer>
+</main>
+</body>
+</html>
